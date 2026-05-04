@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Oblongata — Strategy that gets out into the real world</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+
+<style>
+  :root {
+    --beige: #F7F3F0;
+    --black: #0E131F;
+    --dark-blue: #11203E;
+    --blue: #2B4084;
+    --accent-blue: #2854E0;
+    --mint: #91E8BE;
+    --purple: #7242AE;
+    --sunshine: #F4C44E;
+    --orange: #E47F54;
+    --coral: #EA6F6F;
+    --light-blue: #87DCE8;
+    --moss: #8BAF74;
+
+    --bg: var(--beige);
+    --ink: var(--blue);
+    --ink-soft: color-mix(in oklab, var(--blue) 70%, var(--beige));
+    --ink-faint: color-mix(in oklab, var(--blue) 20%, var(--beige));
+    --rule: color-mix(in oklab, var(--blue) 18%, var(--beige));
+
+    --serif: 'Fraunces', 'Times New Roman', serif;
+    --mono: 'Space Mono', ui-monospace, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  section[id], div[id] { scroll-margin-top: 100px; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+  body[data-density="tight"] section.s { padding: 56px 0; }
+  body[data-density="tight"] section.s.tall { padding: 88px 0; }
+  body[data-grid-blocks="off"] .hero-accent,
+  body[data-grid-blocks="off"] .dark-break-grid,
+  body[data-grid-blocks="off"] .dark-break-grid-r { display: none; }
+
+  ::selection { background: var(--ink); color: var(--bg); }
+
+  a { color: inherit; text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+
+  /* ----- layout shell ----- */
+  .shell {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 60px;
+    position: relative;
+  }
+
+  @media (max-width: 720px) {
+    .shell { padding: 0 24px; }
+  }
+
+  /* ----- top nav ----- */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: color-mix(in oklab, var(--bg) 80%, transparent);
+  }
+  .nav-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 22px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .nav-mark { display: inline-flex; align-items: center; line-height: 1; text-decoration: none; }
+  .nav-mark .nav-word {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    text-transform: lowercase;
+  }
+  .nav-links { display: flex; gap: 36px; }
+  .nav-links a { position: relative; }
+  .nav-links a:hover { text-decoration: none; opacity: 0.6; }
+
+  @media (max-width: 720px) {
+    .nav-inner { padding: 16px 24px; }
+    .nav-links { gap: 18px; font-size: 12px; }
+  }
+
+  /* ----- hero ----- */
+  .hero {
+    padding-top: 200px;
+    padding-bottom: 140px;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(22px, 2.4vw, 32px);
+    letter-spacing: -0.01em;
+    margin: 0 0 80px;
+    max-width: 620px;
+    line-height: 1.25;
+  }
+  .hero-eyebrow em {
+    font-style: italic;
+    font-variation-settings: 'SOFT' 100;
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 1;
+    font-size: clamp(72px, 16vw, 260px);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    margin: 0;
+    /* the slight italic-on-half trick is gone — keep it like sibling: clean roman for our wordmark, with the 'g' descender doing the work */
+  }
+  .wordmark .gobl { font-style: normal; }
+
+  .hero-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 36px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* ----- section markers (A B C ...) ----- */
+  .marker-row {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .marker {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--ink);
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--bg);
+    /* echo brand 'oblongata cell' / square */
+  }
+  .marker-row .body {
+    max-width: 640px;
+  }
+  .marker-row h2 {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    margin: 4px 0 22px;
+  }
+  .marker-row p { margin: 0 0 18px; }
+  .marker-row ul {
+    margin: 16px 0 18px;
+    padding: 0;
+    list-style: none;
+  }
+  .marker-row ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 6px;
+  }
+  .marker-row ul li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 11px;
+    width: 10px; height: 1.5px;
+    background: var(--ink);
+  }
+
+  /* ----- section spacing ----- */
+  section.s { padding: 60px 0; }
+  section.s.tall { padding: 100px 0; }
+
+  /* ----- big-statement section (page 2 home copy) ----- */
+  .statement {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    font-size: clamp(36px, 5.4vw, 84px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    max-width: 1200px;
+    margin: 0;
+  }
+  .statement em {
+    font-style: italic;
+    color: color-mix(in oklab, var(--ink) 55%, var(--bg));
+  }
+
+  /* ----- services 3 columns ----- */
+  .services {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    margin-top: 80px;
+  }
+  @media (max-width: 960px) {
+    .services { grid-template-columns: 1fr; gap: 56px; }
+  }
+  .service .num-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .service .num {
+    width: 28px; height: 28px;
+    border: 1.5px solid var(--ink);
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 700;
+    color: var(--ink);
+  }
+  .service h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.02em;
+  }
+  .service .strap {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--ink);
+    margin: 0 0 18px;
+    line-height: 1.35;
+  }
+  .service p { margin: 0 0 18px; }
+  .service .typ {
+    font-weight: 700;
+    margin: 18px 0 8px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .service ul { margin: 0; padding: 0; list-style: none; }
+  .service ul li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 4px;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .service ul li::before {
+    content: '·';
+    position: absolute;
+    left: 4px; top: 0;
+    font-weight: 700;
+  }
+
+  /* ----- about / team ----- */
+  .about-grid {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 80px;
+  }
+  @media (max-width: 1100px) {
+    .about-grid { gap: 36px; }
+  }
+  @media (max-width: 820px) {
+    .about-grid { grid-template-columns: 1fr; gap: 56px; justify-items: center; }
+  }
+  .person h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 36px;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    line-height: 1.05;
+  }
+  .person .role {
+    font-family: var(--mono);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+  }
+  .person p { margin: 0 0 14px; }
+  .person .portrait {
+    width: 340px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    margin-bottom: 24px;
+    background: var(--rule);
+  }
+  .person .portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(0.05) contrast(1.02);
+  }
+
+  /* ----- contact ----- */
+  .contact-headline {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    max-width: 720px;
+    margin: 24px 0 56px;
+  }
+  .contact-headline em {
+    font-style: italic;
+    color: color-mix(in oklab, var(--ink) 55%, var(--bg));
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 640px;
+  }
+  .cf-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 560px) {
+    .cf-row { grid-template-columns: 1fr; }
+  }
+  .cf-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cf-field > span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .cf-field input,
+  .cf-field textarea {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--rule);
+    padding: 8px 0;
+    outline: none;
+    transition: border-color 0.2s;
+    border-radius: 0;
+  }
+  .cf-field textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  .cf-field input:focus,
+  .cf-field textarea:focus {
+    border-bottom-color: var(--ink);
+  }
+  .cf-submit {
+    align-self: flex-start;
+    margin-top: 12px;
+    background: var(--bg);
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    padding: 14px 28px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.2s, color 0.2s;
+  }
+  .cf-submit:hover { background: var(--ink); color: var(--bg); }
+  .cf-submit:disabled { opacity: 0.5; cursor: wait; }
+  .cf-error {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .cf-error a { text-decoration: underline; }
+  .contact-thanks {
+    border: 1.5px solid var(--ink);
+    padding: 32px 28px;
+    max-width: 640px;
+  }
+
+  .contact-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 56px;
+    margin-top: 64px;
+  }
+  @media (max-width: 720px) {
+    .contact-row { grid-template-columns: 1fr; }
+  }
+  .cta-card {
+    border: 1.5px solid var(--ink);
+    padding: 32px 28px;
+    background: var(--bg);
+    transition: background 0.25s, color 0.25s;
+    display: block;
+  }
+  .cta-card:hover {
+    background: var(--ink);
+    color: var(--bg);
+    text-decoration: none;
+  }
+  .cta-card .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    opacity: 0.7;
+  }
+  .cta-card .what {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin-bottom: 18px;
+  }
+  .cta-card .arrow {
+    font-family: var(--mono);
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ----- footer ----- */
+  footer.foot { padding: 120px 0 40px; }
+  .foot-simple {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 100px;
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  .foot-block { color: var(--ink); }
+  .foot-cols {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    margin-bottom: 120px;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+  @media (max-width: 720px) {
+    .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px; }
+  }
+  .foot-cols .ttl {
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    letter-spacing: 0.1em;
+  }
+  .foot-mark {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 1;
+    font-size: clamp(72px, 16vw, 260px);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: var(--ink);
+    margin: 0 0 40px;
+  }
+  .foot-fine {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+
+  /* ----- decorative grid blocks (subtle, brand) ----- */
+  .grid-strip {
+    display: flex;
+    gap: 0;
+    margin: 0 0 16px;
+  }
+  .gcell {
+    width: 28px; height: 28px;
+    border: 1px solid var(--ink);
+    background: transparent;
+  }
+  .gcell.fill { background: var(--ink); }
+  .gcell.diag {
+    background:
+      repeating-linear-gradient(
+        45deg,
+        var(--ink) 0 1.5px,
+        transparent 1.5px 5px
+      );
+  }
+  .gcell.dots {
+    background:
+      radial-gradient(var(--ink) 0.8px, transparent 1.2px) 0 0/5px 5px;
+  }
+
+  /* ----- inline rule used between sections ----- */
+  .rule { height: 1px; background: var(--rule); width: 100%; }
+
+  /* ----- the patterned-block hero accent ----- */
+  .hero-accent {
+    position: absolute;
+    right: 60px;
+    top: 220px;
+    display: grid;
+    grid-template-columns: repeat(3, 28px);
+    grid-template-rows: repeat(3, 28px);
+    gap: 0;
+  }
+  @media (max-width: 720px) { .hero-accent { display: none; } }
+
+  /* ----- italic-script display flair (for the eccentric 'Flawlessly eccentric' ethos) ----- */
+  .ec {
+    font-family: var(--serif);
+    font-style: italic;
+    font-variation-settings: 'SOFT' 100, 'WONK' 1, 'opsz' 144;
+    font-weight: 400;
+    color: color-mix(in oklab, var(--ink) 60%, var(--bg));
+  }
+
+  /* ----- inline mini-grid used as section spacer ----- */
+  .spacer-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 30px);
+    grid-template-rows: 30px;
+    margin: 64px 0;
+  }
+  .spacer-grid .gcell { width: 30px; height: 30px; }
+
+  /* ----- DARK BREAK section ----- */
+  .dark-break {
+    background: var(--dark-blue);
+    color: var(--beige);
+    margin: 80px 0;
+    padding: 120px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .dark-break .shell { position: relative; }
+  .dark-break .statement { color: var(--beige); }
+  .dark-break .statement em { color: var(--sunshine); font-style: italic; }
+  .dark-break .gcell { border-color: var(--beige); }
+  .dark-break .gcell.fill { background: var(--beige); }
+  .dark-break .gcell.diag {
+    background: repeating-linear-gradient(45deg, var(--beige) 0 1.5px, transparent 1.5px 5px);
+  }
+  .dark-break .gcell.dots {
+    background: radial-gradient(var(--beige) 0.8px, transparent 1.2px) 0 0/5px 5px;
+  }
+  .dark-break-grid {
+    position: absolute;
+    left: 60px;
+    top: 40px;
+    display: grid;
+    grid-template-columns: repeat(4, 28px);
+    grid-template-rows: repeat(2, 28px);
+    opacity: 0.85;
+  }
+  .dark-break-grid-r {
+    position: absolute;
+    right: 60px;
+    bottom: 40px;
+    display: grid;
+    grid-template-columns: repeat(6, 28px);
+    grid-template-rows: repeat(2, 28px);
+    opacity: 0.85;
+  }
+
+  /* ----- ICONOGRAPHY tiles ----- */
+  .verb-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    margin-top: 64px;
+    border-top: 1.5px solid var(--ink);
+    border-left: 1.5px solid var(--ink);
+  }
+  @media (max-width: 960px) { .verb-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 560px) { .verb-grid { grid-template-columns: repeat(2, 1fr); } }
+  .verb {
+    border-right: 1.5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+    aspect-ratio: 1 / 1;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: background 0.25s ease;
+    cursor: default;
+    position: relative;
+  }
+  .verb:hover { background: var(--ink); color: var(--bg); }
+  .verb:hover .verb-icon { color: var(--bg); }
+  .verb-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    opacity: 0.6;
+  }
+  .verb-icon {
+    align-self: flex-end;
+    width: 32px; height: 32px;
+    color: var(--ink);
+    transition: color 0.25s;
+  }
+  .verb-name {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    line-height: 1;
+  }
+
+  /* ----- scroll fade ----- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ============================================================ */
+  /* MOBILE PASS                                                  */
+  /* ============================================================ */
+  @media (max-width: 720px) {
+    /* Nav: smaller wordmark, tighten padding */
+    .nav-mark .nav-word { font-size: 18px; }
+    .nav-links { gap: 14px; font-size: 11px; }
+
+    /* Hero: pull spacing in, let the wordmark scale even smaller */
+    .hero { padding-top: 120px; padding-bottom: 80px; }
+    .hero-eyebrow { margin-bottom: 48px; max-width: 100%; }
+    .wordmark {
+      font-size: clamp(72px, 22vw, 140px);
+    }
+    .hero-meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .hero-meta-right { text-align: left; }
+
+    /* Section markers: stack the letter above the body */
+    .marker-row {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .marker-row .body { max-width: 100%; }
+
+    /* Section paddings */
+    section.s { padding: 56px 0; }
+    section.s.tall { padding: 80px 0; }
+
+    /* Verbs strip */
+    .verb { padding: 32px 18px; }
+
+    /* About: shrink portrait + heading */
+    .about-grid { gap: 48px; }
+    .person .portrait { width: 260px; }
+    .person h3 { font-size: 28px; }
+
+    /* Footer: collapse 4 cols → 2, then keep wordmark scaled */
+    .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 80px; }
+    .foot-mark { font-size: clamp(56px, 22vw, 140px); line-height: 0.85; }
+
+    /* Statement / dark break sizing */
+    .statement { font-size: clamp(28px, 8vw, 48px) !important; line-height: 1.15 !important; }
+  }
+
+  @media (max-width: 480px) {
+    .foot-cols { grid-template-columns: 1fr; gap: 24px; }
+    .nav-links { gap: 10px; font-size: 10px; }
+    .wordmark { font-size: clamp(44px, 20vw, 100px); }
+  }
+  @media (max-width: 360px) {
+    .wordmark { font-size: clamp(38px, 18vw, 80px); }
+    .shell { padding: 0 18px; }
+  }
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+    <rect width="400" height="400" fill="#F2EEE6"/>
+    <text x="200" y="220" text-anchor="middle" font-family="Georgia, serif" font-size="64" font-weight="700" fill="#2B4084" letter-spacing="-2">o</text>
+  </svg>
+</template>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-mark" href="#top">
+      <span class="nav-word">oblongata</span>
+    </a>
+    <div class="nav-links">
+      <a href="#who">about</a>
+      <a href="#services">services</a>
+      <a href="#about">team</a>
+      <a href="#clients">clients</a>
+      <a href="#contact">contact</a>
+    </div>
+  </div>
+</nav>
+
+<div id="top"></div>
+
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const { useState, useEffect } = React;
+
+/* ============================================================ */
+/* small atoms                                                  */
+/* ============================================================ */
+
+const Marker = ({ letter }) => <div className="marker">{letter}</div>;
+
+const Strip = ({ pattern = ['line', 'fill', 'line', 'diag', 'line', 'dots', 'line', 'line'] }) =>
+<div className="grid-strip">
+    {pattern.map((p, i) =>
+  <div key={i} className={'gcell' + (p === 'fill' ? ' fill' : p === 'diag' ? ' diag' : p === 'dots' ? ' dots' : '')} />
+  )}
+  </div>;
+
+
+const Rule = () => <div className="rule" />;
+
+/* ============================================================ */
+/* HERO                                                         */
+/* ============================================================ */
+
+const Hero = () =>
+<section className="hero shell">
+    <p className="hero-eyebrow">
+      Good people doing good strategy <em></em>
+    </p>
+
+    <h1 className="wordmark">oblongata</h1>
+
+    <div className="hero-meta">
+      <span>STRATEGY · INNOVATION + VENTURES · RESEARCH</span>
+      <span>EST. 2021 - BRISBANE, AU</span>
+    </div>
+  </section>;
+
+
+/* ============================================================ */
+/* WHO WE ARE                                                   */
+/* ============================================================ */
+
+const Section = ({ id, letter, title, children }) =>
+<section id={id} className="s shell">
+    <div className="marker-row">
+      <Marker letter={letter} />
+      <div className="body">
+        <h2>{title}</h2>
+        {children}
+      </div>
+    </div>
+  </section>;
+
+
+const Who = () =>
+<Section id="who" letter="A" title="Who we are">
+    <p>There are three questions behind every good strategy: why care, why now, why you. We help leaders answer them and get everything they've got working as hard as possible behind them.
+
+  </p>
+    <p>We normally come in to kick off some major planning process or to help navigate things that can't wait for one. Our clients like us because we do big consultancy things but better for their specific business. We also cost less.</p>
+    <ul className="who-tenets">
+      <li>We don't disappear and we don't regurgitate</li>
+      <li>We work closely with our partners and like to get out into the real world with them</li>
+      <li>We like to do work in our professional lives that we'd be proud to share in our personal ones</li>
+      <li>We hate wasting other people's time and ours</li>
+    </ul>
+  </Section>;
+
+
+const Problem = () => null;
+
+
+/* ============================================================ */
+/* BIG STATEMENT                                                */
+/* ============================================================ */
+
+const Statement = () =>
+<section className="dark-break">
+    <div className="dark-break-grid" aria-hidden="true">
+      <div className="gcell"></div>
+      <div className="gcell fill"></div>
+      <div className="gcell"></div>
+      <div className="gcell diag"></div>
+      <div className="gcell"></div>
+      <div className="gcell"></div>
+      <div className="gcell dots"></div>
+      <div className="gcell"></div>
+    </div>
+    <div className="dark-break-grid-r" aria-hidden="true">
+      <div className="gcell"></div>
+      <div className="gcell"></div>
+      <div className="gcell diag"></div>
+      <div className="gcell"></div>
+      <div className="gcell fill"></div>
+      <div className="gcell"></div>
+      <div className="gcell dots"></div>
+      <div className="gcell"></div>
+      <div className="gcell"></div>
+      <div className="gcell"></div>
+      <div className="gcell fill"></div>
+      <div className="gcell"></div>
+    </div>
+    <div className="shell">
+      <h2 className="statement">
+        Get on top of your world quickly. <em>Find what you're not seeing.</em>{' '}
+        Make things different by the time we leave.
+      </h2>
+    </div>
+  </section>;
+
+
+/* ============================================================ */
+/* ICONOGRAPHY — the seven verbs                                */
+/* ============================================================ */
+
+const VerbIcon = ({ name }) => {
+  const s = { width: '100%', height: '100%', stroke: 'currentColor', fill: 'none', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' };
+  switch (name) {
+    case 'see':return (
+        <svg viewBox="0 0 32 32" style={s}><path d="M2 16 C 8 8, 24 8, 30 16 C 24 24, 8 24, 2 16 Z" /><circle cx="16" cy="16" r="4" /><circle cx="16" cy="16" r="1.4" fill="currentColor" /></svg>);
+
+    case 'inspire':return (
+        <svg viewBox="0 0 32 32" style={s}><circle cx="16" cy="14" r="6" /><path d="M13 22 L13 27 M19 22 L19 27 M14 27 L18 27" /><path d="M16 4 L16 6 M6 14 L4 14 M28 14 L26 14 M9 7 L7.5 5.5 M23 7 L24.5 5.5" /></svg>);
+
+    case 'collide':return (
+        <svg viewBox="0 0 32 32" style={s}><circle cx="10" cy="16" r="6" /><circle cx="22" cy="16" r="6" /><path d="M16 8 L16 4 M16 28 L16 24 M12 12 L9 9 M20 12 L23 9 M12 20 L9 23 M20 20 L23 23" /></svg>);
+
+    case 'flip':return (
+        <svg viewBox="0 0 32 32" style={s}><path d="M6 12 A 10 10 0 0 1 26 12" /><path d="M22 8 L26 12 L22 16" /><path d="M26 20 A 10 10 0 0 1 6 20" /><path d="M10 24 L6 20 L10 16" /></svg>);
+
+    case 'focus':return (
+        <svg viewBox="0 0 32 32" style={s}><circle cx="16" cy="16" r="10" /><circle cx="16" cy="16" r="6" /><circle cx="16" cy="16" r="2" fill="currentColor" /><path d="M16 2 L16 6 M16 26 L16 30 M2 16 L6 16 M26 16 L30 16" /></svg>);
+
+    case 'solve':return (
+        <svg viewBox="0 0 32 32" style={s}><rect x="5" y="5" width="10" height="10" /><rect x="17" y="5" width="10" height="10" /><rect x="5" y="17" width="10" height="10" /><path d="M21 17 L21 23 L17 23 M21 27 L21 27.01" /></svg>);
+
+    case 'make':return (
+        <svg viewBox="0 0 32 32" style={s}><path d="M6 26 L6 14 L16 6 L26 14 L26 26 Z" /><path d="M13 26 L13 18 L19 18 L19 26" /></svg>);
+
+    default:return null;
+  }
+};
+
+const verbs = ['see', 'inspire', 'collide', 'flip', 'focus', 'solve', 'make'];
+
+const Iconography = () => null;
+
+
+/* ============================================================ */
+/* SERVICES                                                     */
+/* ============================================================ */
+
+const services = [
+{
+  n: '01',
+  title: "What's really going on",
+  strap: '',
+  body: "We look at the world around your business and the one inside it.",
+  items: [
+  'Customer research & insight',
+  'Stakeholder & internal perspectives',
+  'Competitive analysis',
+  'Technology & industry shifts',
+  'Value pool mapping',
+  'Organisational assets & advantages',
+  'Opportunity identification & sizing',
+  'Discovery workshops']
+
+},
+{
+  n: '02',
+  title: 'Where you need to go',
+  strap: '',
+  body: "You might have a good read on what's going on but haven't turned it into a direction yet.",
+  items: [
+  'Mission & purpose',
+  'Strategic planning',
+  'Scenario planning & future mapping',
+  'Portfolio & prioritisation',
+  'Operating model & org design',
+  'Brand strategy & positioning',
+  'New product & service development',
+  'Go-to-market planning',
+  'Monetisation & pricing',
+  'Decision-making workshops']
+
+},
+{
+  n: '03',
+  title: 'How to get there',
+  strap: '',
+  body: "You might know where you're going but need help getting everything lined up behind it.",
+  items: [
+  'Implementation planning',
+  'Governance & decision rights',
+  'Business case & financial model',
+  'KPIs & performance tracking',
+  'Experiment & MVP/pilot design',
+  'Strategic narrative & pitch decks',
+  'Planning & alignment workshops']
+
+}];
+
+
+const Services = () =>
+<section id="services" className="s shell">
+    <div className="marker-row">
+      <Marker letter="B" />
+      <div className="body">
+        <h2 style={{ marginBottom: 18 }}>What we do</h2>
+        <p style={{ margin: 0, maxWidth: 640 }}>We specialise in strategy work that sets the direction for organisations. That work takes us into a lot of different places. We've helped big companies and small ones figure out:
+
+
+      </p>
+      </div>
+    </div>
+    <div className="services">
+      {services.map((s) => <div className="service" key={s.n}>
+          <div className="num-row">
+            <div className="num">{s.n}</div>
+            <h3>{s.title}</h3>
+          </div>
+          {s.strap && <p className="strap">{s.strap}</p>}
+          <p>{s.body}</p>
+          <p className="typ">Typically includes:</p>
+          <ul>{s.items.map((i) => <li key={i} style={{ fontSize: "15px" }}>{i}</li>)}</ul>
+        </div>
+    )}
+    </div>
+    <p style={{ marginTop: 56, fontSize: "15px", fontFamily: "\"Space Mono\"", color: 'rgb(43, 64, 132)' }}>
+      If you want to work with us on something that's not here, <a href="#contact" style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: '3px' }}>let's chat</a> about it.
+    </p>
+  </section>;
+
+
+/* ============================================================ */
+/* HOW WE WORK PRICING NOTE                                     */
+/* ============================================================ */
+
+const Pricing = () =>
+<Section id="pricing" letter="D" title="On pricing">
+    <p>Once
+
+
+
+  </p>
+  </Section>;
+
+
+/* ============================================================ */
+/* ABOUT + TEAM                                                 */
+/* ============================================================ */
+
+const About = () =>
+<section id="about" className="s tall shell">
+    <div className="marker-row">
+      <Marker letter="C" />
+      <div className="body">
+        <h2>The team</h2>
+        <p>Joe and Victoria founded Oblongata in 2021. Over the past decade, they have solved consumer and commercial challenges for organisations of all shapes and sizes, from the S&P 500 to the Australian Outback.
+
+
+
+      </p>
+      </div>
+    </div>
+
+    <div className="about-grid">
+      <div className="person">
+        <div className="portrait"><img src="assets/joe.jpg" alt="Joe Hicks" /></div>
+        <h3>Joe Hicks</h3>
+        <p className="role" style={{ fontSize: "15px" }}>Head of Strategy</p>
+      </div>
+
+      <div className="person">
+        <div className="portrait"><img src="assets/vic.png" alt="Victoria Adams" /></div>
+        <h3>Victoria Adams</h3>
+        <p className="role" style={{ fontSize: "15px" }}>Head of Brand</p>
+      </div>
+    </div>
+  </section>;
+
+
+/* ============================================================ */
+/* CONTACT                                                      */
+/* ============================================================ */
+
+const Contact = () => {
+  const [first, setFirst] = React.useState('');
+  const [last, setLast] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [msg, setMsg] = React.useState('');
+  const [status, setStatus] = React.useState('idle'); // idle | sending | success | error
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setStatus('sending');
+    try {
+      const res = await fetch('https://formspree.io/f/mqenperw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          firstName: first,
+          lastName: last,
+          email,
+          message: msg,
+          _subject: `Oblongata — enquiry from ${first} ${last}`.trim(),
+        }),
+      });
+      if (res.ok) {
+        setStatus('success');
+        setFirst(''); setLast(''); setEmail(''); setMsg('');
+      } else {
+        setStatus('error');
+      }
+    } catch (err) {
+      setStatus('error');
+    }
+  };
+
+  return (
+    <section id="contact" className="s tall shell">
+      <div className="marker-row">
+        <Marker letter="E" />
+        <div className="body">
+          <h2>Contact</h2>
+          <p className="contact-headline">
+            Get on top of your world quickly. <em>Find what you're not seeing.</em>{' '}
+            Make things different by the time we leave.
+          </p>
+
+          {status === 'success' ? (
+            <div className="contact-thanks">
+              <p style={{ fontFamily: 'var(--serif)', fontSize: 24, lineHeight: 1.3, margin: 0 }}>
+                Thanks. We got your message and we'll be in touch soon.
+              </p>
+            </div>
+          ) : (
+            <form className="contact-form" onSubmit={submit}>
+              <div className="cf-row">
+                <label className="cf-field">
+                  <span>First name</span>
+                  <input type="text" required value={first} onChange={(e) => setFirst(e.target.value)} />
+                </label>
+                <label className="cf-field">
+                  <span>Last name</span>
+                  <input type="text" required value={last} onChange={(e) => setLast(e.target.value)} />
+                </label>
+              </div>
+              <label className="cf-field">
+                <span>Email address</span>
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              </label>
+              <label className="cf-field">
+                <span>What can we help with?</span>
+                <textarea rows="5" required value={msg} onChange={(e) => setMsg(e.target.value)} />
+              </label>
+              <button type="submit" className="cf-submit" disabled={status === 'sending'}>
+                <span>{status === 'sending' ? 'Sending…' : 'Send'}</span>
+                <span>→</span>
+              </button>
+              {status === 'error' && (
+                <p className="cf-error">Something went wrong sending that. Try again, or email <a href="mailto:joe@oblongata.co">joe@oblongata.co</a> directly.</p>
+              )}
+            </form>
+          )}
+        </div>
+      </div>
+    </section>);
+};
+
+
+/* ============================================================ */
+/* CLIENTS                                                      */
+/* ============================================================ */
+
+const Clients = () =>
+<Section id="clients" letter="D" title="Clients">
+    <p>
+      Our clients trust us with sensitive work. Most want to keep our relationship and the specifics of our work between us, so we don't splash logos and case studies across our site. If you'd like to hear about past work that's relevant to your situation, just ask.
+    </p>
+  </Section>;
+
+
+/* ============================================================ */
+/* FOOTER                                                       */
+/* ============================================================ */
+
+const Footer = () =>
+<footer className="foot shell">
+    <div className="foot-cols">
+      <div>
+        <div className="ttl">Oblongata HQ</div>
+        Brisbane, AU
+      </div>
+      <div>
+        <div className="ttl">Find us</div>
+        <a href="mailto:joe@oblongata.co">joe@oblongata.co</a><br />
+        <a href="https://www.linkedin.com/in/joehicks1/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+      <div>
+        <div className="ttl">EST.2021</div>
+        Brisbane → Everywhere
+      </div>
+      <div>
+        <div className="ttl">© OBLONGATA PTY LTD 2026</div>
+        <br />
+        
+      </div>
+    </div>
+
+    <h2 className="foot-mark">oblongata</h2>
+  </footer>;
+
+
+/* ============================================================ */
+/* APP                                                          */
+/* ============================================================ */
+
+/* ============================================================ */
+/* TWEAKS                                                       */
+/* ============================================================ */
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "palette": "beige",
+  "accent": "blue",
+  "density": "comfortable",
+  "showGridBlocks": true
+} /*EDITMODE-END*/;
+
+const paletteMap = {
+  beige: { bg: 'var(--beige)', ink: 'var(--blue)' },
+  paper: { bg: '#FBF9F7', ink: 'var(--dark-blue)' },
+  darkblue: { bg: 'var(--dark-blue)', ink: 'var(--beige)' },
+  black: { bg: 'var(--black)', ink: 'var(--beige)' }
+};
+const accentMap = {
+  blue: 'var(--blue)',
+  'accent-blue': 'var(--accent-blue)',
+  coral: 'var(--coral)',
+  sunshine: 'var(--sunshine)',
+  mint: 'var(--mint)',
+  purple: 'var(--purple)'
+};
+
+const applyTweaks = (t) => {
+  const root = document.documentElement;
+  const p = paletteMap[t.palette] || paletteMap.beige;
+  root.style.setProperty('--bg', p.bg);
+  root.style.setProperty('--ink', t.palette === 'darkblue' || t.palette === 'black' ? 'var(--beige)' : accentMap[t.accent] || p.ink);
+  // soft + rule recompute via color-mix already use --ink/--bg, but re-set them explicitly for stronger contrast on dark
+  if (t.palette === 'darkblue' || t.palette === 'black') {
+    root.style.setProperty('--ink-soft', 'color-mix(in oklab, var(--beige) 70%, ' + p.bg + ')');
+    root.style.setProperty('--rule', 'color-mix(in oklab, var(--beige) 22%, ' + p.bg + ')');
+  } else {
+    root.style.setProperty('--ink-soft', 'color-mix(in oklab, ' + (accentMap[t.accent] || p.ink) + ' 70%, ' + p.bg + ')');
+    root.style.setProperty('--rule', 'color-mix(in oklab, ' + (accentMap[t.accent] || p.ink) + ' 18%, ' + p.bg + ')');
+  }
+  document.body.dataset.density = t.density;
+  document.body.dataset.gridBlocks = t.showGridBlocks ? 'on' : 'off';
+};
+
+const Tweaks = () => {
+  const { TweaksPanel, useTweaks, TweakSection, TweakSelect, TweakRadio, TweakToggle } = window;
+  if (!TweaksPanel || !useTweaks) return null;
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  React.useEffect(() => {applyTweaks(tweaks);}, [tweaks]);
+  return (
+    <TweaksPanel title="Tweaks">
+      <TweakSection label="Palette" />
+      <TweakRadio label="Background" value={tweaks.palette} onChange={(v) => setTweak('palette', v)} options={[
+      { value: 'beige', label: 'Beige' },
+      { value: 'paper', label: 'Paper' },
+      { value: 'darkblue', label: 'Dark' },
+      { value: 'black', label: 'Black' }]
+      } />
+      <TweakSelect label="Ink / accent" value={tweaks.accent} onChange={(v) => setTweak('accent', v)} options={[
+      { value: 'blue', label: 'Oblongata blue' },
+      { value: 'accent-blue', label: 'Accent blue' },
+      { value: 'coral', label: 'Coral' },
+      { value: 'sunshine', label: 'Sunshine' },
+      { value: 'mint', label: 'Mint' },
+      { value: 'purple', label: 'Purple' }]
+      } />
+      <TweakSection label="Layout" />
+      <TweakRadio label="Density" value={tweaks.density} onChange={(v) => setTweak('density', v)} options={[
+      { value: 'comfortable', label: 'Comfy' },
+      { value: 'tight', label: 'Tight' }]
+      } />
+      <TweakToggle label="Grid blocks" value={tweaks.showGridBlocks} onChange={(v) => setTweak('showGridBlocks', v)} />
+    </TweaksPanel>);
+
+};
+
+/* ============================================================ */
+/* SCROLL REVEAL                                                */
+/* ============================================================ */
+
+const useReveal = () => {
+  React.useEffect(() => {
+    const els = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {if (e.isIntersecting) {e.target.classList.add('in');io.unobserve(e.target);}});
+    }, { threshold: 0.12 });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+};
+
+const App = () => {
+  useReveal();
+  React.useEffect(() => {applyTweaks(TWEAK_DEFAULTS);}, []);
+  return (
+    <>
+      <Hero />
+      <div className="reveal"><Who /></div>
+      <div className="reveal"><Services /></div>
+      <div className="reveal"><About /></div>
+      <div className="reveal"><Clients /></div>
+      <div className="reveal"><Contact /></div>
+      <Footer />
+      <Tweaks />
+    </>);
+
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+</body>
+</html>
