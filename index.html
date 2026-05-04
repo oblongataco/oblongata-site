@@ -75,7 +75,7 @@
   }
 
   @media (max-width: 720px) {
-    .shell { padding: 0 24px; }
+    .shell { padding: 0 28px; }
   }
 
   /* ----- top nav ----- */
@@ -113,8 +113,8 @@
   .nav-links a:hover { text-decoration: none; opacity: 0.6; }
 
   @media (max-width: 720px) {
-    .nav-inner { padding: 16px 24px; }
-    .nav-links { gap: 18px; font-size: 12px; }
+    .nav-inner { padding: 14px 28px; gap: 16px; }
+    .nav-links { gap: 16px; font-size: 12px; }
   }
 
   /* ----- hero ----- */
@@ -687,7 +687,7 @@
   @media (max-width: 720px) {
     /* Nav: smaller wordmark, tighten padding */
     .nav-mark .nav-word { font-size: 18px; }
-    .nav-links { gap: 14px; font-size: 11px; }
+    .nav-links { gap: 14px; font-size: 12px; }
 
     /* Hero: pull spacing in, let the wordmark scale even smaller */
     .hero { padding-top: 120px; padding-bottom: 80px; }
@@ -709,6 +709,8 @@
       gap: 20px;
     }
     .marker-row .body { max-width: 100%; }
+    .marker-row p { font-size: 14px; line-height: 1.7; margin: 0 0 16px; }
+    .marker-row ul li { font-size: 14px; line-height: 1.7; }
 
     /* Section paddings */
     section.s { padding: 56px 0; }
@@ -732,12 +734,16 @@
 
   @media (max-width: 480px) {
     .foot-cols { grid-template-columns: 1fr; gap: 24px; }
-    .nav-links { gap: 10px; font-size: 10px; }
+    .nav-mark { display: none; }
+    .nav-inner { justify-content: center; padding: 14px 20px; }
+    .nav-links { gap: 16px; font-size: 12px; }
     .wordmark { font-size: clamp(44px, 20vw, 100px); }
   }
   @media (max-width: 360px) {
     .wordmark { font-size: clamp(38px, 18vw, 80px); }
     .shell { padding: 0 18px; }
+    .nav-inner { padding: 14px 16px; }
+    .nav-links { gap: 12px; font-size: 11px; }
   }
 </style>
 </head>
