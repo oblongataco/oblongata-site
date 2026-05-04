@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Oblongata — Strategy that gets out into the real world</title>
+<title>Oblongata</title>
+
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+<link rel="alternate icon" href="assets/o-mark.png" />
+<meta name="theme-color" content="#1d2e51" />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -141,7 +145,7 @@
     font-family: var(--serif);
     font-weight: 600;
     font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 1;
-    font-size: clamp(72px, 16vw, 260px);
+    font-size: clamp(60px, 13vw, 240px);
     line-height: 0.85;
     letter-spacing: -0.04em;
     color: var(--ink);
@@ -149,6 +153,31 @@
     /* the slight italic-on-half trick is gone — keep it like sibling: clean roman for our wordmark, with the 'g' descender doing the work */
   }
   .wordmark .gobl { font-style: normal; }
+
+  .hero-stack {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: nowrap;
+    gap: clamp(32px, 5vw, 80px);
+    /* let the wordmark dictate sizing — children inherit em from wordmark via font-size cascade */
+    font-size: min(clamp(60px, 13vw, 240px), 16cqi);
+    container-type: inline-size;
+    line-height: 1;
+  }
+  .hero-stack .wordmark {
+    min-width: 0;
+    font-size: 1em;
+    line-height: 0.85;
+    margin: 0;
+  }
+  .hero-device {
+    flex-shrink: 0;
+    width: 0.85em;
+    height: 0.85em;
+    display: block;
+    /* sit flush with the bottom of the wordmark x-height */
+    margin-bottom: 0.06em;
+  }
 
   .hero-meta {
     display: flex;
@@ -343,8 +372,8 @@
     font-family: var(--serif);
     font-weight: 400;
     font-variation-settings: 'opsz' 144, 'SOFT' 30;
-    font-size: clamp(44px, 6vw, 72px);
-    line-height: 1.1;
+    font-size: clamp(28px, 3.6vw, 36px);
+    line-height: 1.2;
     letter-spacing: -0.01em;
     max-width: 720px;
     margin: 24px 0 56px;
@@ -503,6 +532,11 @@
     margin-bottom: 12px;
     letter-spacing: 0.1em;
   }
+  .foot-mark-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+  }
   .foot-mark {
     font-family: var(--serif);
     font-weight: 600;
@@ -512,6 +546,19 @@
     letter-spacing: -0.04em;
     color: var(--ink);
     margin: 0 0 40px;
+    flex: 1;
+    min-width: 0;
+  }
+  .foot-device {
+    width: clamp(80px, 12vw, 160px);
+    height: clamp(80px, 12vw, 160px);
+    flex-shrink: 0;
+    margin-bottom: clamp(8px, 1.4vw, 18px);
+    align-self: flex-end;
+  }
+  @media (max-width: 720px) {
+    .foot-mark-wrap { gap: 16px; align-items: flex-end; }
+    .foot-device { width: 64px; height: 64px; margin-bottom: 6px; }
   }
   .foot-fine {
     display: flex;
@@ -692,9 +739,6 @@
     /* Hero: pull spacing in, let the wordmark scale even smaller */
     .hero { padding-top: 120px; padding-bottom: 80px; }
     .hero-eyebrow { margin-bottom: 48px; max-width: 100%; }
-    .wordmark {
-      font-size: clamp(72px, 22vw, 140px);
-    }
     .hero-meta {
       flex-direction: column;
       align-items: flex-start;
@@ -724,8 +768,8 @@
     .person .portrait { width: 260px; }
     .person h3 { font-size: 28px; }
 
-    /* Contact headline: keep it bold and large on mobile */
-    .contact-headline { font-size: 44px; line-height: 1.1; margin: 16px 0 40px; }
+    /* Contact headline: match team name size */
+    .contact-headline { font-size: 28px !important; line-height: 1.25 !important; margin: 16px 0 40px !important; letter-spacing: -0.01em !important; }
 
     /* Footer: collapse 4 cols → 2, then keep wordmark scaled */
     .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px; margin-bottom: 80px; }
@@ -741,10 +785,8 @@
     .nav-mark { width: 100%; justify-content: center; }
     .nav-mark .nav-word { font-size: 18px; }
     .nav-links { gap: 16px; font-size: 12px; }
-    .wordmark { font-size: clamp(44px, 20vw, 100px); }
   }
   @media (max-width: 360px) {
-    .wordmark { font-size: clamp(38px, 18vw, 80px); }
     .shell { padding: 0 18px; }
     .nav-inner { padding: 12px 16px; }
     .nav-links { gap: 12px; font-size: 11px; }
@@ -819,13 +861,20 @@ const Rule = () => <div className="rule" />;
 /* HERO                                                         */
 /* ============================================================ */
 
+const ODevice = ({ className = '' }) =>
+<img src="assets/o-device.png" alt="Oblongata mark" className={"o-device " + className} />;
+
+
 const Hero = () =>
 <section className="hero shell">
     <p className="hero-eyebrow">
       Good people doing good strategy <em></em>
     </p>
 
-    <h1 className="wordmark">oblongata</h1>
+    <div className="hero-stack">
+      <h1 className="wordmark">oblongata</h1>
+      <ODevice className="hero-device" />
+    </div>
 
     <div className="hero-meta">
       <span>STRATEGY · INNOVATION + VENTURES · RESEARCH</span>
@@ -1207,7 +1256,9 @@ const Footer = () =>
       </div>
     </div>
 
-    <h2 className="foot-mark">oblongata</h2>
+    <div className="foot-mark-wrap">
+      <h2 className="foot-mark">oblongata</h2>
+    </div>
   </footer>;
 
 
